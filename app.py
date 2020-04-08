@@ -14,10 +14,10 @@ ma = Marshmallow(app)
 class Movie(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(40), unique=False)
-    release_year = db.Column(db.Integer, unique=False)
+    release_year = db.Column(db.String(12), unique=False)
     rating = db.Column(db.String(8), unique=False)
     genre = db.Column(db.String(16), unique=False)
-    starring = db.Column(db.String(32))
+    starring = db.Column(db.String(64))
 
     def __init__(self, title, release_year, rating, genre, starring):
         self.title = title
@@ -49,13 +49,13 @@ def add_movie():
 
     movie = Movie.query.get(new_movie.id)
 
-    return movie_schema.jsonify(guide)
+    return movie_schema.jsonify(movie)
 
 # Endpoint to query all movies
 @app.route('/viewMovies', methods=['GET'])
 def get_movies():
     all_movies = Movie.query.all()
-    result = guides_schema.dump(all_movies)
+    result = movies_schema.dump(all_movies)
     
     return jsonify(result)
 
@@ -67,7 +67,7 @@ def get_movie(id):
 
 # Endpoint for 'putting' a movie
 @app.route('/movie/<id>', methods=['PUT'])
-def movie_update():
+def movie_update(id):
     movie = Movie.query.get(id)
 
     title = request.json['title']
@@ -86,12 +86,12 @@ def movie_update():
     return movie_schema.jsonify(movie)
 
 @app.route('/movie/<id>', methods=['DELETE'])
-def delete_movie():
+def delete_movie(id):
     movie = Movie.query.get(id)
-    db.session.delete(movie)
+    db.session.delete(movie)  
     db.session.commit()
 
-    return movie_schema.jsonfiy(guide)
+    return jsonify("Deletion successful")
 
 if __name__ == "__main__":
     app.run(debug=True)
